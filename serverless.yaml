@@ -1,0 +1,48 @@
+org: template-org # <-- This is the org name in your Serverless account
+app: template-serverless # <-- This is the app name in your Serverless account
+service: template-service # <-- This is the service name in your Serverless account
+
+# To enable environment variables via dotenv
+useDotenv: true
+
+# Add plugins
+plugins:
+  - serverless-offline
+
+# Reduce the size of the deployment package
+package:
+  individually: true
+
+# Docker image configuration
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: us-east-1
+  stage: prod
+  profile: lambda-docker
+  ecr:
+    images:
+      appimage:
+        path: ./
+
+  environment:
+    # Add environment variables here in the format:
+    TEMPLATE: ${env:TEMPLATE}
+
+
+functions:
+  api:
+    image:
+      name: appimage
+      # Your build directory (dist), the file name containing lambda handler (lambda)
+      # and the handler function name (handler)
+      command:
+        - dist/lambda.handler
+
+      # The entrypoint script that will be used to run the lambda handler
+      entryPoint:
+        - '/lambda-entrypoint.sh'
+    events:
+      - http:
+          method: any
+          path: /{any+}

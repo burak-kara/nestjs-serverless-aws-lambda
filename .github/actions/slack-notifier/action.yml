@@ -1,0 +1,33 @@
+name: 'Slack Notifications on GitHub Actions'
+description: 'Notify Slack channel on GitHub Actions'
+inputs:
+  action-status:
+    description: 'Status of the action. Can be Success, Failure'
+    required: true
+  slack-web-hook:
+    description: 'Slack WebHook URL'
+    required: true
+  slack-channel-name:
+    description: 'Slack channel name'
+    required: true
+  title:
+    description: 'Title of the message'
+    required: true
+  message:
+    description: 'Message'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Slack Notification
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_CHANNEL: ${{ inputs.slack-channel-name }}
+        SLACK_COLOR: ${{ inputs.action-status }}
+        SLACK_ICON: 'https://your_custome_icon_url?size=48'
+        SLACK_MESSAGE: ${{ inputs.message }}
+        SLACK_TITLE: ${{ inputs.title }}
+        SLACK_USERNAME: GitHubBot
+        SLACK_WEBHOOK: ${{ inputs.slack-web-hook }}
+        MSG_MINIMAL: event,actions url,commit
