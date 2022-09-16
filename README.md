@@ -1,73 +1,118 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+# NestJS App Serverless
+This is a starter project to deploy NestJS REST API to AWS Lambda using Serverless Framework.
+It also supports Prisma for ORM and Swagger UI for API documentation.
+It uses the following technologies:
+- NodeJS 16
+- NestJS
+- AWS Lambda
+- AWS API Gateway
+- AWS RDS Postgres
+- AWS S3
+- AWS CloudWatch
+- AWS CLoudFormation
+- GitHub Actions (See this [workflow template](https://github.com/burak-kara/github-actions))
+- Docker
+- Swagger
+- Slack (Notifications)
 
 ## Installation
 
 ```bash
-$ npm install
+$ yarn add
 ```
 
 ## Running the app
 
+You need to create `.env` file in the root directory and add the necessary environment variables. 
+Don't forget to add these environment variables to the Secrets in GitHub Repository Settings. 
+See  [GitHub Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository).
+Also, you need add them to the `yml` files in [./github](./github) and `serverless.yml` file.
+
+To use GitHub Actions, you need the followings:
+- `CHANNEL_NAME` and set its value to your Slack channel name. (e.g., general, random)
+- `PAT` and set its value to your GitHub Personal Access Token. Needs to have repo scope access. Refer [here](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+- `SLACK_WEBHOOK` and set its value to your Slack webhook URL. Get one [here](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks).
+- `SERVERLESS_ACCESS_KEY` and set its value to your Serverless Access Key ID. Refer [https://app.serverless.com/{your_org_name}}/settings/accessKeys](https://app.serverless.com/{your_org_name}}/settings/accessKeys)
+- You can provide your Slack Message icon by modifying the `SLACK_ICON` in the [slack-notifier](.github/actions/slack-notifier/action.yml) file.
+
+To use Prisma, you need the following:
+- `DATABASE_URL` and set its value to your database URL. (e.g., postgres://user:password@host:port/database). Don't forget to add it to the Secrets in GitHub Repository Settings and also GitHub Actions.
+
 ```bash
+# If you have Prisma as ORM 
+# prisma generate
+$ npx prisma generate
+
+# prisma migrate
+$ npx prisma migrate dev
+
 # development
-$ npm run start
+$ yarn start
 
 # watch mode
-$ npm run start:dev
+$ yarn start:dev
 
 # production mode
-$ npm run start:prod
+$ yarn start:prod
 ```
+
+Local URL: http://localhost:3000/api
 
 ## Test
 
 ```bash
 # unit tests
-$ npm run test
+$ yarn test
 
 # e2e tests
-$ npm run test:e2e
+$ yarn test:e2e
 
 # test coverage
-$ npm run test:cov
+$ yarn test:cov
 ```
 
-## Support
+## Deploy
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+GitHub Actions will deploy the app to AWS CloudFormation stack. 
+You can also deploy manually by running the followings:
 
-## Stay in touch
+### Prerequisites
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- AWS account
+    - Create an IAM user with programmatic access. See [AWS IAM User](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html) 
+- AWS CLI
+    - Install. See [AWS CLI docs](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
+    - Configure credentials.
+      See [AWS CLI docs](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
+      and [AWS SAM docs](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started-set-up-credentials.html)
+- Serverless Framework.
+  - Account. See [Serverless](https://www.serverless.com)
+  - Serverless installation. See [Serverless docs](https://www.serverless.com/framework/docs)
+    ```bash
+    $ yarn global add serverless
+    ```
+- Docker
+    - Install. See [Docker docs](https://docs.docker.com/get-docker/)
+    - Start Docker daemon. See [Docker docs](https://docs.docker.com/engine/reference/commandline/dockerd/)
 
-## License
+### Local Lambda
 
-Nest is [MIT licensed](LICENSE).
+```bash
+$ yarn global add serverless # if you don't have serverless installed
+$ serverless offline start
+```
+
+### Deploy to AWS
+
+This will deploy the lambda to AWS and create a new API Gateway endpoint.
+The endpoint will be printed to the console.
+You can also find it in the AWS console.
+
+This step uses the AWS CLI and [Serverless Framework](https://www.serverless.com/).
+
+```bash
+$ yarn install
+$ docker build .
+$ serverless deploy --stage production
+```
+
